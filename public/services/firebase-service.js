@@ -1,13 +1,18 @@
 // Import necessary functions from Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, collection, addDoc, onSnapshot, deleteDoc, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- Firebase Configuration ---
-// These variables are provided by the environment.
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAkSmVXOPqu7lo078u0CRokr9VEo5uoMyI",
+  authDomain: "planilha-de-lucro-ou-prejuizo.firebaseapp.com",
+  projectId: "planilha-de-lucro-ou-prejuizo",
+  storageBucket: "planilha-de-lucro-ou-prejuizo.firebasestorage.app",
+  messagingSenderId: "675580770040",
+  appId: "1:675580770040:web:d31bff29e2d48d752bad0d"
+};
 
 // --- Firebase Initialization ---
 const app = initializeApp(firebaseConfig);
@@ -15,20 +20,14 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 /**
- * Handles user authentication, signing in with a custom token if available,
- * otherwise signing in anonymously.
+ * Handles user authentication by signing in anonymously.
  * @returns {Promise<void>}
  */
 export async function handleAuthentication() {
-    if (initialAuthToken) {
-        try {
-            await signInWithCustomToken(auth, initialAuthToken);
-        } catch (error) {
-            console.error("Custom token sign-in failed, falling back to anonymous:", error);
-            await signInAnonymously(auth);
-        }
-    } else {
+    try {
         await signInAnonymously(auth);
+    } catch (error) {
+        console.error("Anonymous sign-in failed:", error);
     }
 }
 
@@ -48,7 +47,9 @@ export function onAuth(callback) {
  * @returns {import("firebase/firestore").Unsubscribe}
  */
 export function listenToTransactions(userId, callback) {
-    const q = query(collection(db, `artifacts/${appId}/users/${userId}/transactions`));
+    // CORREÇÃO: Removida a variável "appId" do caminho.
+    const collectionPath = `users/${userId}/transactions`;
+    const q = query(collection(db, collectionPath));
     return onSnapshot(q, (querySnapshot) => {
         const transactions = [];
         querySnapshot.forEach((doc) => {
@@ -57,7 +58,6 @@ export function listenToTransactions(userId, callback) {
         callback(transactions);
     }, (error) => {
         console.error("Error fetching data with onSnapshot: ", error);
-        // You could pass this error to the UI via the callback if needed
         callback([], error); 
     });
 }
@@ -69,7 +69,9 @@ export function listenToTransactions(userId, callback) {
  * @returns {Promise<import("firebase/firestore").DocumentReference>}
  */
 export function addTransaction(userId, transactionData) {
-    const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
+    // CORREÇÃO: Removida a variável "appId" do caminho.
+    const collectionPath = `users/${userId}/transactions`;
+    const collectionRef = collection(db, collectionPath);
     return addDoc(collectionRef, {
         ...transactionData,
         createdAt: serverTimestamp()
@@ -83,6 +85,8 @@ export function addTransaction(userId, transactionData) {
  * @returns {Promise<void>}
  */
 export function deleteTransaction(userId, transactionId) {
-    const docRef = doc(db, `artifacts/${appId}/users/${userId}/transactions`, transactionId);
+    // CORREÇÃO: Removida a variável "appId" do caminho.
+    const docPath = `users/${userId}/transactions/${transactionId}`;
+    const docRef = doc(db, docPath);
     return deleteDoc(docRef);
 }
