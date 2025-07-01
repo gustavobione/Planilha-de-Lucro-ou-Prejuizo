@@ -1,6 +1,6 @@
 # 📊 Planilha de Lucro e Prejuízo - Mary Kay
 
-![Imagem de produtos Mary Kay em uma mesa](https://placehold.co/800x400/fce4ec/e91e63?text=Controle+Financeiro+Mary+Kay)
+![Screenshot da Aplicação](./public/assets/Imagem_Planilha.png)
 
 ## 📖 Descrição
 
